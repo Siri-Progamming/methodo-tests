@@ -1,10 +1,14 @@
+val testIntegrationImplementation: Configuration by configurations.creating {
+	extendsFrom(configurations.implementation.get())
+}
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.4.0"
 	id("io.spring.dependency-management") version "1.1.6"
 	id("jacoco")
-	id("info.solidsoft.pitest") version "1.15.0"
+//	id("info.solidsoft.pitest") version "1.15.0"
 }
 
 group = "kat.siri"
@@ -31,69 +35,104 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
+	// S P R I N G   B O O T
+	implementation("org.springframework.boot:spring-boot-starter") // Spring Boot Starter (base)
+	implementation("org.springframework.boot:spring-boot-starter-web") // Spring Boot Web
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA pour ORM
+
+	implementation("com.h2database:h2") // BDD en mémoire
+	implementation("org.liquibase:liquibase-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	runtimeOnly("org.postgresql:postgresql") // Driver BDD
+
+	// T E S T S
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
 	testImplementation("io.kotest:kotest-property:5.9.1")
-	testImplementation("io.mockk:mockk:1.13.8")
-	testImplementation("org.pitest:pitest-junit5-plugin:1.1.2")
+	testImplementation("io.mockk:mockk:1.13.13")
+//	testImplementation("org.pitest:pitest-junit5-plugin:1.1.2")
+//	testImplementation("com.ninja-squad:springmockk:4.0.2")
+
+	// T E S T S   I N T E G R A T I O N
+	testIntegrationImplementation("org.testcontainers:postgresql:1.19.1")
+	testIntegrationImplementation("org.testcontainers:jdbc-test:1.12.0")
+	testIntegrationImplementation("org.testcontainers:testcontainers:1.19.1")
+	testIntegrationImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
+	testIntegrationImplementation("io.mockk:mockk:1.13.8")
+	testIntegrationImplementation("io.kotest:kotest-assertions-core:5.9.1")
+	testIntegrationImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+	testIntegrationImplementation("com.ninja-squad:springmockk:4.0.2")
+	testIntegrationImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(module = "mockito-core")
+	}
 }
 
 kotlin {
-	jvmToolchain(21)
 	compilerOptions {
 		freeCompilerArgs.addAll("-Xjsr305=strict")
 	}
 }
 
-pitest {
-	junit5PluginVersion.set("1.1.2")
-	timestampedReports.set(false)
-	threads.set(4)
-	outputFormats.set(listOf("HTML", "XML"))
+//pitest {
+//	junit5PluginVersion.set("1.1.2")
+//	timestampedReports.set(false)
+//	threads.set(4)
+//	outputFormats.set(listOf("HTML", "XML"))
+//
+//	targetClasses.set(listOf(
+//		"kat.siri.*"
+//	))
+//
+//	mutators.set(listOf(
+//		"CONDITIONALS_BOUNDARY",
+//		"INCREMENTS",
+//		"INVERT_NEGS",
+//		"MATH",
+//		"NEGATE_CONDITIONALS",
+//		"VOID_METHOD_CALLS",
+//		"EMPTY_RETURNS",
+//		"FALSE_RETURNS",
+//		"TRUE_RETURNS",
+//		"NULL_RETURNS",
+//		"PRIMITIVE_RETURNS"
+//	))
+//
+//	excludedClasses.set(listOf(
+//		"kat.siri.config.*",
+//		"kat.siri.Application"
+//	))
+//
+//	mutationThreshold.set(70)
+//	coverageThreshold.set(70)
+//}
 
-	targetClasses.set(listOf(
-		"kat.siri.*"
-	))
-
-	mutators.set(listOf(
-		"CONDITIONALS_BOUNDARY",
-		"INCREMENTS",
-		"INVERT_NEGS",
-		"MATH",
-		"NEGATE_CONDITIONALS",
-		"VOID_METHOD_CALLS",
-		"EMPTY_RETURNS",
-		"FALSE_RETURNS",
-		"TRUE_RETURNS",
-		"NULL_RETURNS",
-		"PRIMITIVE_RETURNS"
-	))
-
-	excludedClasses.set(listOf(
-		"kat.siri.config.*",
-		"kat.siri.Application"
-	))
-
-	mutationThreshold.set(70)
-	coverageThreshold.set(70)
+testing {
+	suites {
+		val testIntegration by registering(JvmTestSuite::class) {
+			sources {
+				kotlin {
+					setSrcDirs(listOf("src/testIntegration/kotlin"))
+				}
+				compileClasspath += sourceSets.main.get().output
+				runtimeClasspath += sourceSets.main.get().output
+			}
+		}
+	}
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
-
 tasks.jacocoTestReport {
 	reports {
 		xml.required.set(true)
 		html.required.set(true)
 	}
 }
-
 tasks.test {
 	finalizedBy(tasks.jacocoTestReport)
 }

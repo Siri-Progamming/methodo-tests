@@ -2,7 +2,9 @@ package kat.siri.test.usecase
 
 import kat.siri.test.model.Book
 import kat.siri.test.port.BookRepository
+import org.springframework.stereotype.Service
 
+@Service
 class BookService(private val bookRepository: BookRepository) {
 
     fun createBook(book: Book): Book {

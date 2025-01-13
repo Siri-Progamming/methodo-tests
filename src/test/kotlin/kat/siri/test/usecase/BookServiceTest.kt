@@ -23,7 +23,7 @@ class BookServiceTest : FunSpec({
         Arb.string(3, 50)
     ) { id, title, author -> Book(id, title, author) }
 
-    //Génération d'une liste de books aléatoire (entre
+    //Génération d'une liste de books aléatoire (entre 1 & 10)
     val bookListArb: Arb<List<Book>> = Arb.list(bookArb, 1..10)
 
     context("Handmade Tests") {
@@ -82,7 +82,7 @@ class BookServiceTest : FunSpec({
 
     context("Property Tests") {
         test("saving a book should preserve its properties") {
-            checkAll(iterations = 10, bookArb) { book ->
+            checkAll(10, bookArb) { book ->
                 // Given
                 every { bookRepository.save(book) } returns book
 
@@ -98,7 +98,7 @@ class BookServiceTest : FunSpec({
         }
 
         test("la liste des livres retournée contient tous les éléments stockés") {
-            checkAll(iterations = 10, bookListArb) { storedBooks ->
+            checkAll(10, bookListArb) { storedBooks ->
                 // Arrange
                 every { bookRepository.findAll() } returns storedBooks
 
@@ -112,7 +112,7 @@ class BookServiceTest : FunSpec({
         }
 
         test("la liste des livres retournée doit être triée par titre") {
-            checkAll(iterations = 10, bookListArb)  { storedBooks ->
+            checkAll(10, bookListArb)  { storedBooks ->
                 println(storedBooks)
                 // Arrange
                 every { bookRepository.findAll() } returns storedBooks.sortedBy { it.title }
