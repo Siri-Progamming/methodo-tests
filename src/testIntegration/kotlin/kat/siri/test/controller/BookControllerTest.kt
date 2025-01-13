@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import com.fasterxml.jackson.databind.ObjectMapper
+import controller.BookController
 
 @WebMvcTest(BookController::class)
 class BookControllerTest @Autowired constructor(

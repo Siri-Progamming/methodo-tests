@@ -1,4 +1,4 @@
-package kat.siri.test.controller
+package controller
 
 import kat.siri.test.dto.BookDTO
 import kat.siri.test.model.Book
