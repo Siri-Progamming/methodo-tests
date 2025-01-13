@@ -40,3 +40,11 @@ jobs:
       - name: Generate Test Report
         if: always()
         run: ./gradlew jacocoTestReport
+
+      - name: Publish Jacoco Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/
+          retention-days: 7
