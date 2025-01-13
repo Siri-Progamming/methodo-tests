@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import com.fasterxml.jackson.databind.ObjectMapper
-import controller.BookController
 
 @WebMvcTest(BookController::class)
 class BookControllerTest @Autowired constructor(
@@ -35,9 +34,6 @@ class BookControllerTest @Autowired constructor(
             Book(id = 1, title = "Book 1", author = "Author 1"),
             Book(id = 2, title = "Book 2", author = "Author 2")
         )
-        val expectedDTOs = mockBooks.map {
-            BookDTO(id = it.id, title = it.title, author = it.author)
-        }
 
         every { bookService.listBooks() } returns mockBooks
 
@@ -56,10 +52,8 @@ class BookControllerTest @Autowired constructor(
         val bookDTO = BookDTO(title = "New Book", author = "New Author")
         val createdBook = Book(id = 0, title = bookDTO.title, author = bookDTO.author)
 
-        // Setup mock behavior
         every { bookService.createBook(any()) } returns createdBook
 
-        // Perform request and validate
         mockMvc.perform(post(BOOKS_ENDPOINT)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(bookDTO))
@@ -70,7 +64,6 @@ class BookControllerTest @Autowired constructor(
             .andExpect(jsonPath("$.title").value(createdBook.title))
             .andExpect(jsonPath("$.author").value(createdBook.author))
 
-        // Verify service method was called with correct parameter
         verify { bookService.createBook(withArg<Book> {
             assert(it.title == "New Book")
             assert(it.author == "New Author")
@@ -83,14 +76,23 @@ class BookControllerTest @Autowired constructor(
 
         every { bookService.createBook(any()) } throws RuntimeException("Service error")
 
-        // Perform request and validate
         mockMvc.perform(post(BOOKS_ENDPOINT)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(bookDTO))
         )
             .andExpect(status().isInternalServerError)
 
-        // Verify service method was called
         verify { bookService.createBook(any()) }
+    }
+
+    @Test
+    fun `should throw exception because entry book isn't ok`() {
+        val bookDTO = """{"author": "Author 1"}"""
+
+        mockMvc.perform(post(BOOKS_ENDPOINT)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(bookDTO)
+        )
+            .andExpect(status().isBadRequest)
     }
 }

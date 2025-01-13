@@ -1,19 +1,23 @@
 package kat.siri.test.usecase
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.*
+import io.kotest.property.arbitrary.bind
+import io.kotest.property.arbitrary.list
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.validation.Validation
 import kat.siri.test.model.Book
 import kat.siri.test.port.BookRepository
 
 class BookServiceTest : FunSpec({
     val bookRepository = mockk<BookRepository>()
+    val validator = Validation.buildDefaultValidatorFactory().validator
     val bookService = BookService(bookRepository)
 
     //Génération d'un book aléatoire
@@ -40,30 +44,7 @@ class BookServiceTest : FunSpec({
             verify { bookRepository.save(newBook) }
         }
 
-        test("should fail because title is empty") {
-            shouldThrow<IllegalArgumentException> {
-                // Arrange
-                val newBook = Book(id = 1, title = "", author = "Robert C. Martin")
-                every { bookRepository.save(newBook) } returns newBook
-
-                // Act
-                bookService.createBook(newBook)
-            }
-        }
-
-        test("should fail because author is empty") {
-            shouldThrow<IllegalArgumentException> {
-                // Arrange
-                val newBook = Book(id = 1, title = "Harry Potter", author = "")
-                every { bookRepository.save(newBook) } returns newBook
-
-                // Act
-                bookService.createBook(newBook)
-            }
-        }
-
         test("should list all books order ASC by title") {
-            // Arrange
             val books = listOf(
                 Book(id = 1, title = "Refactoring", author = "Robert C. Martin"),
                 Book(id = 3, title = "Z", author = "Z"),
@@ -71,10 +52,8 @@ class BookServiceTest : FunSpec({
             )
             every { bookRepository.findAll() } returns books
 
-            // Act
             val result = bookService.listBooks()
 
-            // Assert
             result shouldBe books.sortedBy { it.title }
             verify { bookRepository.findAll() }
         }
@@ -83,13 +62,10 @@ class BookServiceTest : FunSpec({
     context("Property Tests") {
         test("saving a book should preserve its properties") {
             checkAll(10, bookArb) { book ->
-                // Given
                 every { bookRepository.save(book) } returns book
 
-                // When
                 val savedBook = bookRepository.save(book)
 
-                // Then
                 savedBook.id shouldBe book.id
                 savedBook.title shouldBe book.title
                 savedBook.author shouldBe book.author
@@ -99,28 +75,21 @@ class BookServiceTest : FunSpec({
 
         test("la liste des livres retournée contient tous les éléments stockés") {
             checkAll(10, bookListArb) { storedBooks ->
-                // Arrange
                 every { bookRepository.findAll() } returns storedBooks
 
-                // Act
                 val result = bookService.listBooks()
 
-                // Assert
                 result.size shouldBe storedBooks.size
                 result.containsAll(storedBooks) shouldBe true
             }
         }
 
         test("la liste des livres retournée doit être triée par titre") {
-            checkAll(10, bookListArb)  { storedBooks ->
-                println(storedBooks)
-                // Arrange
+            checkAll(10, bookListArb) { storedBooks ->
                 every { bookRepository.findAll() } returns storedBooks.sortedBy { it.title }
 
-                // Act
                 val result = bookService.listBooks()
 
-                // Assert
                 result shouldBe storedBooks.sortedBy { it.title }
                 verify { bookRepository.findAll() }
             }

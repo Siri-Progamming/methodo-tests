@@ -1,24 +1,30 @@
 package kat.siri.test.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import jakarta.persistence.*
 import kat.siri.test.dto.BookDTO
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 
 @Entity
-data class Book(
+@Table(name = "books")
+class Book(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    @field:Min(1)
+    var id: Long? = null,
+
+    @field:NotBlank(message = "Title cannot be blank")
+    @field:NotEmpty
+    @Column(nullable = false)
     var title: String,
-    var author: String,
-){
+
+    @field:NotBlank(message = "Author cannot be blank")
+    @field:NotEmpty
+    @Column(nullable = false)
+    var author: String
+) {
     constructor() : this(null, "", "")
 
-    init {
-        require(title.isNotBlank()) { "Title cannot be empty or blank" }
-        require(author.isNotBlank()) { "Author cannot be empty or blank" }
-    }
     fun toDTO() = BookDTO(id ?: 0L, title, author)
 }

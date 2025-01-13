@@ -3,11 +3,16 @@ package kat.siri.test.usecase
 import kat.siri.test.model.Book
 import kat.siri.test.port.BookRepository
 import org.springframework.stereotype.Service
+import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 
 @Service
-class BookService(private val bookRepository: BookRepository) {
+@Validated
+class BookService(
+    private val bookRepository: BookRepository,
+) {
 
-    fun createBook(book: Book): Book {
+    fun createBook(@Valid book: Book): Book {
         return bookRepository.save(book)
     }
 
