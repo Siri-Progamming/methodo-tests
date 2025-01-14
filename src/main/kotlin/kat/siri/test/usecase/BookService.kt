@@ -36,6 +36,7 @@ class BookService(
     }
 
     fun deleteById(id: Long) {
+        this.getBookById(id)
         bookRepository.deleteById(id)
     }
 
