@@ -17,7 +17,6 @@ import kat.siri.test.port.BookRepository
 
 class BookServiceTest : FunSpec({
     val bookRepository = mockk<BookRepository>()
-    val validator = Validation.buildDefaultValidatorFactory().validator
     val bookService = BookService(bookRepository)
 
     //Génération d'un book aléatoire
@@ -32,14 +31,11 @@ class BookServiceTest : FunSpec({
 
     context("Handmade Tests") {
         test("should create a book") {
-            // Arrange
             val newBook = Book(id = 1, title = "Clean Code", author = "Robert C. Martin")
             every { bookRepository.save(newBook) } returns newBook
 
-            // Act
             val result = bookService.createBook(newBook)
 
-            // Assert
             result shouldBe newBook
             verify { bookRepository.save(newBook) }
         }
