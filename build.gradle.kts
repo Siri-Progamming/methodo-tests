@@ -1,6 +1,9 @@
 val testIntegrationImplementation: Configuration by configurations.creating {
 	extendsFrom(configurations.implementation.get())
 }
+val testComponentImplementation: Configuration by configurations.creating {
+	extendsFrom(configurations.implementation.get())
+}
 
 plugins {
 	kotlin("jvm") version "1.9.25"
@@ -38,8 +41,7 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter") // Spring Boot Starter (base)
 	implementation("org.springframework.boot:spring-boot-starter-web") // Spring Boot Web
-
-	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-validation") // Annotations de validation des données
 
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA pour ORM
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -58,7 +60,6 @@ dependencies {
 	testImplementation("io.kotest:kotest-property:5.9.1")
 	testImplementation("io.mockk:mockk:1.13.13")
 //	testImplementation("org.pitest:pitest-junit5-plugin:1.1.2")
-//	testImplementation("com.ninja-squad:springmockk:4.0.2")
 
 	// T E S T S   I N T E G R A T I O N
 	testIntegrationImplementation("org.testcontainers:postgresql:1.19.1")
@@ -72,6 +73,18 @@ dependencies {
 	testIntegrationImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(module = "mockito-core")
 	}
+
+	// T E S T S   C O M P O N E N T S
+	testComponentImplementation("io.cucumber:cucumber-java:7.14.0")
+	testComponentImplementation("io.cucumber:cucumber-spring:7.14.0")
+	testComponentImplementation("io.cucumber:cucumber-junit:7.14.0")
+	testComponentImplementation("io.cucumber:cucumber-junit-platform-engine:7.14.0")
+	testComponentImplementation("io.rest-assured:rest-assured:5.3.2")
+	testComponentImplementation("org.junit.platform:junit-platform-suite:1.10.0")
+	testComponentImplementation("org.testcontainers:postgresql:1.19.1")
+	testComponentImplementation("io.kotest:kotest-assertions-core:5.9.1")
+	testComponentImplementation("org.springframework.boot:spring-boot-starter-test")
+	testComponentImplementation("org.springframework.boot:spring-boot-starter-web")
 }
 
 kotlin {
@@ -80,6 +93,7 @@ kotlin {
 	}
 }
 
+//Commenté car proxy ordinateur entreprise
 //pitest {
 //	junit5PluginVersion.set("1.1.2")
 //	timestampedReports.set(false)
@@ -113,12 +127,24 @@ kotlin {
 //	coverageThreshold.set(70)
 //}
 
+//Pour ajouter les commandes gradle testIntegration & testComponent
 testing {
 	suites {
 		val testIntegration by registering(JvmTestSuite::class) {
 			sources {
 				kotlin {
 					setSrcDirs(listOf("src/testIntegration/kotlin"))
+				}
+				compileClasspath += sourceSets.main.get().output
+				runtimeClasspath += sourceSets.main.get().output
+			}
+		}
+	}
+	suites {
+		val testComponent by registering(JvmTestSuite::class) {
+			sources {
+				kotlin {
+					setSrcDirs(listOf("src/testComponent/kotlin"))
 				}
 				compileClasspath += sourceSets.main.get().output
 				runtimeClasspath += sourceSets.main.get().output

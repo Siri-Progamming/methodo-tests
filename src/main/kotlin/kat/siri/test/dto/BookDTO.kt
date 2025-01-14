@@ -6,6 +6,10 @@ data class BookDTO(
     var id: Long? = null,
     var title: String,
     var author: String,
-){
-    fun toEntity() = Book(id ?: 0L, title, author)
+) {
+    fun toEntity() = Book(
+        id = id,
+        title = title,
+        author = author
+    )
 }

@@ -35,7 +35,7 @@ class BookControllerTest @Autowired constructor(
             Book(id = 2, title = "Book 2", author = "Author 2")
         )
 
-        every { bookService.listBooks() } returns mockBooks
+        every { bookService.getBooks() } returns mockBooks
 
         mockMvc.perform(get(BOOKS_ENDPOINT))
             .andExpect(status().isOk)
@@ -44,7 +44,7 @@ class BookControllerTest @Autowired constructor(
             .andExpect(jsonPath("$[0].title").value("Book 1"))
             .andExpect(jsonPath("$[1].title").value("Book 2"))
 
-        verify { bookService.listBooks() }
+        verify { bookService.getBooks() }
     }
 
     @Test

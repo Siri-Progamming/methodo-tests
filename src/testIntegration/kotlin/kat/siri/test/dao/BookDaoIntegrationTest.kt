@@ -113,15 +113,12 @@ class BookDaoIntegrationTest {
 
     @Test
     fun `should find book by title`() {
-        // Given
         val book = Book(title = "Unique Title", author = "Some Author")
         bookRepository.save(book)
 
-        // When
-        val foundBook = bookRepository.findByTitle("Unique Title")
+        val foundBook = bookRepository.findByTitle("Unique Title")[0]
 
-        // Then
         foundBook shouldNotBe null
-        foundBook?.title shouldBe "Unique Title"
+        foundBook.title shouldBe "Unique Title"
     }
 }

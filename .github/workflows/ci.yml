@@ -29,8 +29,14 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
-      - name: Run PITest
-        run: ./gradlew pitest
+      #      - name: Run PITest
+      #        run: ./gradlew pitest
+
+      - name: Run tests
+        run: ./gradlew testIntegration
+
+      - name: Run tests
+        run: ./gradlew testComponent
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3

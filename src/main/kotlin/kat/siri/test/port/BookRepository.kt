@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface BookRepository : JpaRepository<Book, Long> {
     fun save(book: Book): Book
-    fun findByTitle(title: String): Book?
+    fun findByTitle(title: String): List<Book>
 }

@@ -52,7 +52,7 @@ class BookServiceTest : FunSpec({
             )
             every { bookRepository.findAll() } returns books
 
-            val result = bookService.listBooks()
+            val result = bookService.getBooks()
 
             result shouldBe books.sortedBy { it.title }
             verify { bookRepository.findAll() }
@@ -77,7 +77,7 @@ class BookServiceTest : FunSpec({
             checkAll(10, bookListArb) { storedBooks ->
                 every { bookRepository.findAll() } returns storedBooks
 
-                val result = bookService.listBooks()
+                val result = bookService.getBooks()
 
                 result.size shouldBe storedBooks.size
                 result.containsAll(storedBooks) shouldBe true
@@ -88,7 +88,7 @@ class BookServiceTest : FunSpec({
             checkAll(10, bookListArb) { storedBooks ->
                 every { bookRepository.findAll() } returns storedBooks.sortedBy { it.title }
 
-                val result = bookService.listBooks()
+                val result = bookService.getBooks()
 
                 result shouldBe storedBooks.sortedBy { it.title }
                 verify { bookRepository.findAll() }
