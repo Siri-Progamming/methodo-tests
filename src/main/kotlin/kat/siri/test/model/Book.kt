@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotEmpty
 data class Book(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @field:Min(1)
+    @field:Min(1, message = "Id cannot be negative")
     var id: Long? = null,
 
     @field:NotBlank(message = "Title cannot be blank")
